@@ -1,0 +1,27 @@
+name: Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: macos-14
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_15.3.app/Contents/Developer
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run test
+        run: |
+          xcodebuild test \
+            -scheme RetryTestSample \
+            -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
+            -retry-tests-on-failure \
+            -resultBundlePath TestResults
+
+      - name: Archive test results
+        if: success() || failure()
+        uses: kishikawakatsumi/xcresulttool@v1
+        with:
+          path: TestResults.xcresult
